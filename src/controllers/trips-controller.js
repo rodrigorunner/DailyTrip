@@ -1,27 +1,18 @@
 const pool = require('../database/db')
+const tripsServices = require('../services/trips-services')
 
 exports.findAllTrips = async (req, res) => {
     try {
-        const query = `
-            SELECT 
-                u.name,
-                t.destination,
-                t.travel_date,
-                t.description
-            FROM trips t
-            INNER JOIN users u 
-            ON t.user_id = u.user_id
-            WHERE t.user_id = 2
-        `
-        const result = await pool.query(query)
+       
+        const trips = await tripsServices.findAllTrips()
     
-        if(result.rows.length === 0) {
+        if(trips.length === 0) {
             return res.json({
                 message: 'There is no trips.'
             })
         }
     
-        return res.status(200).json(result.rows)
+        return res.status(200).json(trips)
     } catch (error) {
         return res.status(500).json({
             message: 'Internal server error',
@@ -34,22 +25,16 @@ exports.findById = async (req, res) => {
     const { id } = req.params 
 
     try {       
-        const query = `SELECT 
-                            destination, 
-                            description ,
-                            travel_date
-                       FROM trips 
-                       WHERE id = $1 `
-    
-        const result = await pool.query(query, [id])
-    
-        if(result.rows.length === 0) {
+        
+        const trip = await tripsServices.findById(id)
+
+        if(trip.length === 0) {
             return res.status(404).json({
                 message: 'Trip not found.'
             })
         }
     
-        return res.status(200).json(result.rows[0])
+        return res.status(200).json(trip)
     } catch (error) {
          return res.status(500).json({
             message: 'Internal server error',
@@ -59,36 +44,10 @@ exports.findById = async (req, res) => {
 }
 
 exports.createTrip = async (req, res) => {
-    const { user_id, destination, travel_date, description } = req.body 
-
-    if (
-    !destination ||
-    !description ||
-    !travel_date ||
-        !user_id
-    ) {
-        return res.status(400).json({
-            message: 'Missing some fields'
-        })
-    }
-
     try {
-        const query = `
-        INSERT INTO trips(user_id,
-                        destination,
-                        travel_date,
-                        description)
-        VALUES 
-            ($1, $2, $3, $4)
-        RETURNING *
-        `
+        const trip = await tripsServices.createTrip(req.body)
 
-        const values = [user_id, destination, travel_date, description]
-        await pool.query(query, values)
-
-        return res.status(201).json({
-            message: 'Trip create successfully.'
-    })
+        return res.status(201).json(trip)
     } catch (error) {
          return res.status(500).json({
             message: 'Internal server error',
@@ -98,28 +57,15 @@ exports.createTrip = async (req, res) => {
 }
 
 exports.updateTrip = async (req, res) => {
-    const { destination, travel_date, description } = req.body 
-    const { id } = req.params 
-
     try {
-       const query = `
-        UPDATE trips
-        SET 
-            destination = $1,
-            travel_date = $2,
-            description = $3
-        WHERE id = $4
-        RETURNING *
-        `
 
-        const values = [destination, travel_date, description, id]
-        const result = await pool.query(query, values)
-
-         if(result.rows.length === 0) {
-            return res.status(404).json({
-                message: 'Trip not found.'
-            })
-        }
+        const trip = await tripsServices.updateTrip(req.body, req.params)
+      
+        //  if(trip === 0) {
+        //     return res.status(404).json({
+        //         message: 'Trip not found.'
+        //     })
+        // }
 
         return res.status(200).json({
             message: 'Trip updated successfully.'
@@ -133,18 +79,12 @@ exports.updateTrip = async (req, res) => {
 }
 
 exports.deleteTrip = async (req, res) => {
-    const { id } = req.params 
-
     try {
-        const query = `DELETE FROM trips WHERE id = $1 RETURNING *`
+        const trip = tripsServices.deleteTrip(req.params)
 
-        /**
-         * Criar uma condição para perguntar ao usuário se
-         * realmente ele deseja deletar a trip.
-         */
-        const result = await pool.query(query, [id])
+        console.log(trip)
 
-        if(result.rows.length === 0) {
+        if(trip === 0) {
             return res.status(404).json({
                 message: 'Trip not found.'
             })
