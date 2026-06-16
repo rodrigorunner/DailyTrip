@@ -1,4 +1,3 @@
-const pool = require('../database/db')
 const tripsServices = require('../services/trips-services')
 
 exports.findAllTrips = async (req, res) => {
@@ -7,28 +6,39 @@ exports.findAllTrips = async (req, res) => {
         const trips = await tripsServices.findAllTrips()
     
         if(trips.length === 0) {
-            return res.json({
-                message: 'There is no trips.'
-            })
+            return res.status(200).json([])
         }
     
         return res.status(200).json(trips)
     } catch (error) {
         return res.status(500).json({
-            message: 'Internal server error',
-            error: error.message
+            message: error.message,
+            error: error.stack
         })   
     }
 }
 
 exports.findById = async (req, res) => {
-    const { id } = req.params 
+    const { id } = req.params
+
+    /**
+     * O valor 10 é "radix", ou seja,
+     * ele é responsável por dizer que estamos
+     * usando base decimal 10.
+     */
+    const newId = parseInt(id, 10)
+
+    if(Number.isNaN(newId)) {
+    return res.status(400).json({
+        message: 'Invalid trip id.'
+        })
+    }
 
     try {       
         
-        const trip = await tripsServices.findById(id)
+        const trip = await tripsServices.findById(newId)
 
-        if(trip.length === 0) {
+        if(!trip) {
             return res.status(404).json({
                 message: 'Trip not found.'
             })
@@ -37,8 +47,8 @@ exports.findById = async (req, res) => {
         return res.status(200).json(trip)
     } catch (error) {
          return res.status(500).json({
-            message: 'Internal server error',
-            error: error.message
+            message: error.message,
+            error: error.stack
         })   
     }
 }
@@ -49,42 +59,58 @@ exports.createTrip = async (req, res) => {
 
         return res.status(201).json(trip)
     } catch (error) {
-         return res.status(500).json({
-            message: 'Internal server error',
-            error: error.message
+         return res.status(error.statusCode ||500).json({
+            message: error.message,
+            error: error.stack
         })     
     } 
 }
 
 exports.updateTrip = async (req, res) => {
+    const { id } = req.params 
+
+    const newId = parseInt(id)
+
+    if(isNaN(newId)) {
+        return res.status(400).json({
+            message: 'Invalid trip id.'
+        })
+    }
     try {
 
-        const trip = await tripsServices.updateTrip(req.body, req.params)
-      
-        //  if(trip === 0) {
-        //     return res.status(404).json({
-        //         message: 'Trip not found.'
-        //     })
-        // }
+        const trip = await tripsServices.updateTrip(req.body, newId)
 
+        if (!trip) {
+        return res.status(404).json({
+            message: 'Trip not found.'
+        })
+}
         return res.status(200).json({
             message: 'Trip updated successfully.'
         }) 
     } catch (error) {
          return res.status(500).json({
-            message: 'Internal server error',
-            error: error.message
+            message: error.message,
+            error: error.stack
         })    
     }
 }
 
 exports.deleteTrip = async (req, res) => {
+    const { id } = req.params
+
+    const newId = parseInt(id)
+
+    if(isNaN(newId)) {
+        return res.status(400).json({
+            message: 'Invalid trip id.'
+        })
+    }
+
     try {
-        const trip = tripsServices.deleteTrip(req.params)
+        const trip = await tripsServices.deleteTrip(newId)
 
-        console.log(trip)
-
-        if(trip === 0) {
+        if(!trip) {
             return res.status(404).json({
                 message: 'Trip not found.'
             })
@@ -95,8 +121,8 @@ exports.deleteTrip = async (req, res) => {
         })
     } catch (error) {
         return res.status(500).json({
-            message: 'Internal server error',
-            error: error.message
+            message: error.message,
+            error: error.stack
         })   
     }
 }

@@ -27,7 +27,7 @@ exports.findById = async (id) => {
     
     const result = await pool.query(query, [id])
 
-    return result.rows
+    return result.rows[0]
 }
 
 exports.createTrip = async (tripData) => {
@@ -39,16 +39,14 @@ exports.createTrip = async (tripData) => {
     } = tripData 
 
      if (
-    !destination ||
+    !destination || 
     !description ||
-    !travel_date ||
-        !user_id
+    !travel_date || 
+        !user_id 
     ) {
-        const error = {
-            message: 'All fields are required.'
-        }
-
-        return error
+        const error = new Error('All fields are required.')
+        error.statusCode = 400
+        throw error
     }
 
      const query = `
@@ -73,27 +71,21 @@ exports.createTrip = async (tripData) => {
         return result.rows[0]
 }
 
-exports.updateTrip = async (tripDataBody, tripDataId) => {
-    const { 
+exports.updateTrip = async (tripData, id) => {
+      const { 
         destination, 
         travel_date, 
         description 
-    } = tripDataBody 
+    } = tripData 
 
-    const { 
-        id 
-    } = tripDataId
-
-      if (
-    tripDataBody.destination === "" ||
-    tripDataBody.description === "" ||
-    tripDataBody.travel_date === ""
+    if (
+    !destination ||
+    !travel_date ||
+    !description
     ) {
-        const error = {
-            message: 'All fields are required.'
-        }
-
-        return error
+        const error = new Error('All fields are required.')
+        error.statusCode = 400
+        throw error
     }
 
      const query = `
@@ -113,18 +105,11 @@ exports.updateTrip = async (tripDataBody, tripDataId) => {
         return result.rows[0]
 }
 
-exports.deleteTrip = async (tripId) => {
-    const {
-        id
-    } = tripId 
+exports.deleteTrip = async (id) => {
 
      const query = `DELETE FROM trips WHERE id = $1 RETURNING *`
 
-    /**
-     * Criar uma condição para perguntar ao usuário se
-     * realmente ele deseja deletar a trip.
-     */
     const result = await pool.query(query, [id])
 
-    return result.rows
+    return result.rows[0]
 }
