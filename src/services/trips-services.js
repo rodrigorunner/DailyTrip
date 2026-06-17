@@ -1,4 +1,5 @@
 const pool = require('../database/db')
+const ExpressError = require('../utils/ExpressError')
 
 exports.findAllTrips = async () => {
      const query = `
@@ -44,9 +45,8 @@ exports.createTrip = async (tripData) => {
     !travel_date || 
         !user_id 
     ) {
-        const error = new Error('All fields are required.')
-        error.statusCode = 400
-        throw error
+        const msg = 'All fields are required.'
+        throw new ExpressError(msg, 400)
     }
 
      const query = `
@@ -83,9 +83,8 @@ exports.updateTrip = async (tripData, id) => {
     !travel_date ||
     !description
     ) {
-        const error = new Error('All fields are required.')
-        error.statusCode = 400
-        throw error
+        const msg = 'All fields are required.'
+        throw new ExpressError(msg, 400)
     }
 
      const query = `
@@ -107,7 +106,7 @@ exports.updateTrip = async (tripData, id) => {
 
 exports.deleteTrip = async (id) => {
 
-     const query = `DELETE FROM trips WHERE id = $1 RETURNING *`
+    const query = `DELETE FROM trips WHERE id = $1 RETURNING *`
 
     const result = await pool.query(query, [id])
 
