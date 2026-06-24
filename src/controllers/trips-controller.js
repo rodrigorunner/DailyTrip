@@ -56,7 +56,7 @@ exports.findById = async (req, res) => {
 exports.createTrip = async (req, res) => {
     try {
         const trip = await tripsServices.createTrip(req.body)
-
+        
         return res.status(201).json(trip)
     } catch (error) {
          return res.status(error.statusCode ||500).json({
@@ -79,12 +79,7 @@ exports.updateTrip = async (req, res) => {
     try {
 
         const trip = await tripsServices.updateTrip(req.body, newId)
-
-        if (!trip) {
-        return res.status(404).json({
-            message: 'Trip not found.'
-        })
-}
+        
         return res.status(200).json({
             message: 'Trip updated successfully.'
         }) 
