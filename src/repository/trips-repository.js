@@ -14,18 +14,41 @@ exports.findAllTrips = async () => {
             WHERE t.user_id = 2
         `)
 
+     if(result.rows.length === 0) {
+        const msg = 'There is no trip available.'
+        throw new ExpressError(msg, 404)
+    }
+
     return result.rows 
 }
 
 exports.findById = async (id) => {
-     const query = `SELECT 
-                            destination, 
-                            description ,
-                            travel_date
-                       FROM trips 
-                       WHERE id = $1 `
+    /**
+     * Convertendo "id" de string para number porque o postgresql
+     * armazena um inteiro.
+     * O valor 10 como segundo parâmetro configura o id para ser um 
+     * número de base decimal.
+     */
+    const newId = parseInt(id, 10)
+
+    if(Number.isNaN(newId)) {
+        const msg = 'Trip not found.'
+        throw new ExpressError(msg, 404)
+    }
+
+    const result = await pool.query(`
+            SELECT 
+                destination, 
+                description ,
+                travel_date
+            FROM trips 
+            WHERE id = $1
+        `, [id])
     
-    const result = await pool.query(query, [id])
+    if(result.rows.length === 0) {
+        const msg = 'No trip found.'
+        throw new ExpressError(msg, 404)
+    }
 
     return result.rows[0]
 }
@@ -68,6 +91,18 @@ exports.createTrip = async (tripData) => {
 }
 
 exports.updateTrip = async (tripData, id) => {
+     /**
+     * Convertendo "id" de string para number porque o postgresql
+     * armazena um inteiro.
+     * O valor 10 como segundo parâmetro configura o id para ser um 
+     * número de base decimal.
+     */
+    const newId = parseInt(id, 10)
+
+    if(Number.isNaN(newId)) {
+        const msg = 'Invalid id.'
+        throw new ExpressError(msg, 404)
+    }
      const { 
         destination, 
         travel_date, 
@@ -107,9 +142,17 @@ exports.updateTrip = async (tripData, id) => {
 }
 
 exports.deleteTrip = async (id) => {
-    if (!id) {
-        const msg = 'Trip not found.'
-        throw new ExpressError(msg, 400)
+     /**
+     * Convertendo "id" de string para number porque o postgresql
+     * armazena um inteiro.
+     * O valor 10 como segundo parâmetro configura o id para ser um 
+     * número de base decimal.
+     */
+    const newId = parseInt(id, 10)
+
+    if(Number.isNaN(newId)) {
+        const msg = 'No trip found.'
+        throw new ExpressError(msg, 404)
     }
 
     const result = await pool.query(`
@@ -117,6 +160,11 @@ exports.deleteTrip = async (id) => {
             WHERE id = $1 
             RETURNING *
         `, [id])
+
+    if(result.rows.length === 0) {
+        const msg = 'Trip not found.'
+        throw new ExpressError(msg, 400)
+    }
     
     return result.rows[0]
 }
