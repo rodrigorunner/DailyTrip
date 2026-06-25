@@ -40,7 +40,7 @@ exports.updateTrip = async (tripData, id) => {
         throw new ExpressError('Something went wrong', 400)
     }
 
-    const updatedTrip = await tripsRepository.updateTrip(newId)
+    const updatedTrip = await tripsRepository.updateTrip(tripData, newId)
 
     if(updatedTrip === undefined) {
         throw new ExpressError('Trip not found.', 404)

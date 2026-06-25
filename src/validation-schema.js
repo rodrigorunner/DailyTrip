@@ -1,7 +1,7 @@
 const { z } = require('zod')
 
 module.exports.tripsDailySchema = z.object({
-    user_id: z.number(),
+    user_id: z.coerce.number(),
     destination: z.string().trim().min(1),
     description: z.string().trim().min(1),
     travel_date: z.coerce.date()
