@@ -14,8 +14,10 @@ exports.findById = async (req, res) => {
     return res.status(200).json(trip)
 }
 
-exports.createTrip = async (req, res) => {
+exports.createTrip = async (req, res, next) => {
     const trip = await tripsServices.createTrip(req.body)
+
+    console.log('Controller: ', trip)
         
     return res.status(201).json(trip)
 }

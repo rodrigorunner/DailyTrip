@@ -12,7 +12,13 @@ exports.findAllTrips = async () => {
 }
 
 exports.findById = async (id) => {
-    const trip = await tripsRepository.findById(id)
+    const newId = parseInt(id, 10)
+
+    if(Number.isNaN(newId)) {
+        throw new ExpressError('Something went wrong', 400)
+    }
+
+    const trip = await tripsRepository.findById(newId)
 
     if(trip === undefined) {
         throw new ExpressError('Trip not found.', 404)
@@ -23,12 +29,18 @@ exports.findById = async (id) => {
 
 exports.createTrip = async (tripData) => {
     const createdTrip = await tripsRepository.createTrip(tripData)
-    
+
     return createdTrip
 }
 
 exports.updateTrip = async (tripData, id) => {
-    const updatedTrip = await tripsRepository.updateTrip(tripData, id)
+    const newId = parseInt(id, 10)
+
+    if(Number.isNaN(newId)) {
+        throw new ExpressError('Something went wrong', 400)
+    }
+
+    const updatedTrip = await tripsRepository.updateTrip(newId)
 
     if(updatedTrip === undefined) {
         throw new ExpressError('Trip not found.', 404)
@@ -38,7 +50,13 @@ exports.updateTrip = async (tripData, id) => {
 }
 
 exports.deleteTrip = async (id) => {
-    const deletedTip = await tripsRepository.deleteTrip(id)
+    const newId = parseInt(id, 10)
+
+    if(Number.isNaN(newId)) {
+        throw new ExpressError('Something went wrong', 400)
+    }
+
+    const deletedTip = await tripsRepository.deleteTrip(newId)
 
     if(deletedTip === undefined) {
         throw new ExpressError('Trip not found.', 404)
