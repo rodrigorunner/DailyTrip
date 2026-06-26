@@ -1,3 +1,11 @@
+/**
+ * Quem me chamou ?
+ * Controller.
+ * 
+ * Quem eu chamo ?
+ * Repository.
+ */
+
 const tripsRepository = require('../repository/trips-repository')
 const ExpressError = require('../utils/ExpressError')
 

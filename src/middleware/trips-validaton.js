@@ -1,5 +1,5 @@
 const ExpressError = require('../utils/ExpressError')
-const { tripsDailySchema, idValidation } = require('../validation-schema')
+const { tripsDailySchema } = require('../validation-schema')
 
 module.exports.tripsDailyValidation = async (req, res, next) => {
     const result = await tripsDailySchema.safeParseAsync(req.body)

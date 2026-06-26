@@ -1,3 +1,11 @@
+/**
+ * Quem me chamou ?
+ * Services.
+ * 
+ * Quem eu chamo ?
+ * Database.
+ */
+
 const pool = require('../database/db')
 
 exports.findAllTrips = async () => {

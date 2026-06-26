@@ -1,3 +1,14 @@
+/**
+ * Quem me chamou ?
+ * Router.
+ * 
+ * Quem eu chamo ?
+ * Services.
+ * 
+ * Controllers é responsável por receber a requisição do roteamento e
+ * chamar services para lidar com a regra de negócio.
+ */
+
 const tripsServices = require('../services/trips-services')
 
 exports.findAllTrips = async (req, res) => {     
